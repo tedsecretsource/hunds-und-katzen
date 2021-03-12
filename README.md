@@ -1,70 +1,90 @@
-# Getting Started with Create React App
+# React Suspense Mode
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+[Based on this article](https://reactjs.org/docs/concurrent-mode-suspense.html)
+we decided to make an experimental project to learn how this will work.
 
-## Available Scripts
+We're calling this project "Hunds und Katz und"
 
-In the project directory, you can run:
+## En Example of Suspense
+(taken directly from our React slack channel)
 
-### `yarn start`
+Currently, you're either "fetching on render" or you're 
+"fetching-then-rendering" where the latter is only possible with Relay.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+So the traditional approach is:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```js
+const Component = () => {
+  useEffect(() => {
+    fetchSomething().then(r => setData(r))
+  }, [data, setData])
+}
+```
 
-### `yarn test`
+Whereas with Suspense, you can do:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```js
+// This is a function that initializes the fetch of a large data set
+// What you want to do, is start fetch as early as possible, fetching-as-you-render
+const resource = fetchPosts()
+const SuspensefulPostList = () => {
+  <Suspense fallback={<p>Loading...</p>}>
+    <PostList />
+  </Suspense>
+}
+const PostList = () => {
+  // We attempt to read data that might still be loading
+  const posts = resource.read()
+  return posts.map(({title, author, body}) => (
+    <>
+      <h4>{title}</h4>
+      <small>By: {author}</small>
+      <p>{body}</p>
+    </>
+  )
+}
+const Posts = () => <SuspensefulPostList />
+```
 
-### `yarn build`
+You can take this a step further, say if you know the post IDs that you 
+want to display on the page:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```js
+const postIdsOnPage = [1, 2, 3]
+const resource = fetchPostsForPage(postIdsOnPage)
+const SuspensefulPost = ({ postId }) => (
+  <Suspense fallback={<p>...Loading</p>}>
+    <Post postIdIndex={postIdsOnPage.indexOf(postId)} />
+  <Suspense>
+)
+const Post = ({ postIdIndex }) => {
+  const { title, author, body } = resource[postIdIndex].read()
+  return (
+    <>
+      <h4>{title}</h4>
+      <small>By: {author}</small>
+      <p>{body}</p>
+    </>
+  )
+}
+const PostList = () => (
+  <SuspenseList revealOrder={forward}>
+    {postIdsOnPage.map(postId => <SuspensefulPost postId={postId} />)}
+  </SuspenseList>
+)
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Here, instead of fetching the entire post list, we fetch posts 
+one-by-one. Assuming that we're hitting an API where we have something 
+like `/posts/{postId}`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+We're doing a series of API requests (small requests versus one giant 
+one), but this can be useful in that you can display posts as they are 
+loaded from the API.
 
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+However, in order to do this.. first you need to be using concurrent 
+mode. You also want to control in the way you display the data as it's 
+loaded. Since we're doing a series of API calls, each one can arrive at 
+various intervals. So for a good UX, we want to control the way they are
+revealed to the user. We use a special React component called 
+`<SuspenseList>` where we set the reveal order.
