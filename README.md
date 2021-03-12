@@ -6,11 +6,14 @@ we decided to make an experimental project to learn how this will work.
 We're calling this project "Hunds und Katzen" because we'll be seeing a
 lot of hunds und katzen.
 
+![Have a cat](https://api.thecatapi.com/v1/images/search?format=src)
+
 ## En Example of Suspense
 (taken directly from our React slack channel)
 
 Currently, you're either "fetching on render" or you're 
-"fetching-then-rendering" where the latter is only possible with Relay.
+"fetching-then-rendering" where the latter is only possible with 
+[Relay](https://github.com/facebook/relay).
 
 So the traditional approach is:
 
