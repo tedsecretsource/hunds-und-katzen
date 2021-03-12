@@ -3,7 +3,8 @@
 [Based on this article](https://reactjs.org/docs/concurrent-mode-suspense.html)
 we decided to make an experimental project to learn how this will work.
 
-We're calling this project "Hunds und Katz und"
+We're calling this project "Hunds und Katzen" because we'll be seeing a
+lot of hunds und katzen.
 
 ## En Example of Suspense
 (taken directly from our React slack channel)
@@ -88,3 +89,17 @@ loaded. Since we're doing a series of API calls, each one can arrive at
 various intervals. So for a good UX, we want to control the way they are
 revealed to the user. We use a special React component called 
 `<SuspenseList>` where we set the reveal order.
+
+There's some magic that you need to make happen behind the scene though.
+This function fetchPostsForPage is responsible for doing the fetch 
+requests for your data. In a nutshell, this is what it does in 
+pseudo-code:
+
+    Start the fetch and create a promise object
+    Create a suspender object that returns the result of the promise (promise.then(...))
+    Return a function called 'read' where
+      If the promise is pending, return the suspender
+      If the promise returns and error, throw the error
+      If the promise is successful, return the result
+
+For a series, simply do the same thing, but with an array of promises.
