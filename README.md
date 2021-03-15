@@ -82,6 +82,10 @@ Here, instead of fetching the entire post list, we fetch posts
 one-by-one. Assuming that we're hitting an API where we have something 
 like `/posts/{postId}`
 
+_Editor's note: as fetching posts one by one may be an uncommon use
+case, we may, in this project, fetch from multiple sources, say, from
+different APIs with different types of animals._
+
 We're doing a series of API requests (small requests versus one giant 
 one), but this can be useful in that you can display posts as they are 
 loaded from the API.
