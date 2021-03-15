@@ -116,8 +116,8 @@ For a series, simply do the same thing, but with an array of promises.
 These are some APIs we can use to grab images:
 
 - [Foxes](https://randomfox.ca/)
-- [Cats]()
-- [Dogs]()
+- [Cats](https://api.thecatapi.com/v1/images/search)
+- [Dogs](https://thedogapi.com/) and [more dogs](https://dog.ceo/dog-api/)
 - [Illustrations](http://phylopic.org/api/)
 - [npm package for getting pics of random animals](https://www.npmjs.com/package/random-animals-api)
 
