@@ -110,3 +110,18 @@ pseudo-code:
       If the promise is successful, return the result
 
 For a series, simply do the same thing, but with an array of promises.
+
+# APIs
+
+These are some APIs we can use to grab images:
+
+- [Foxes](https://randomfox.ca/)
+- [Cats]()
+- [Dogs]()
+- [Illustrations](http://phylopic.org/api/)
+- [npm package for getting pics of random animals](https://www.npmjs.com/package/random-animals-api)
+
+Other potential resources
+
+- https://rapidapi.com/search/animals
+- https://apilist.fun/category/animals
